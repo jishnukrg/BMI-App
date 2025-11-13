@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 # 📘 **BMI Calculator – Java Swing GUI Application**
 
 ## 🧩 Overview  
@@ -170,4 +168,3 @@ When pushed to GitHub, your repo will be:
 =======
 # JishnuGanesh_M4Assgn1
 BMI Application
->>>>>>> 05102732f430f6de5876c4fcde60ef38eaa43e00
