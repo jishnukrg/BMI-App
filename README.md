@@ -1,7 +1,7 @@
-# 📘 **BMI Calculator – Java Swing GUI Application**
+# 📘 **BMI Calculator**
 
 ## 🧩 Overview  
-This project is a **standalone Java Swing application** developed as part of **Module 4 Assignment #1** for *CSC 7435E – Secure DevOps Practices* at **Louisiana State University**.  
+This project is a **standalone application** developed as part of **Module 4 Assignment #1** for *CSC 7435E – Secure DevOps Practices* at **LSU**.  
 
 The purpose of this app is to **calculate a person’s Body Mass Index (BMI)** based on their weight and height. It provides a clean, user-friendly graphical interface where the user can:
 - Input weight and height,  
