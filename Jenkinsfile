@@ -25,12 +25,10 @@ pipeline {
 
     stage('Package') {
       steps {
-        echo 'Packaging into ZIP artifact...'
+        echo 'Packaging into TAR artifact...'
         sh '''
           mkdir -p dist
-          apt-get update -y
-          apt-get install -y zip
-          zip -r dist/BMIApp-$BUILD_NUMBER.zip build
+          tar -cf dist/BMIApp-$BUILD_NUMBER.tar build
         '''
       }
     }
