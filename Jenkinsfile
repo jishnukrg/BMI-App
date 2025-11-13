@@ -2,7 +2,8 @@ pipeline {
   agent any
 
   environment {
-    BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+    // Prefer Jenkins' built-in env vars for multibranch pipelines
+    BRANCH_NAME = "${env.GIT_BRANCH ?: env.BRANCH_NAME ?: 'unknown'}"
   }
 
   stages {
@@ -42,10 +43,14 @@ pipeline {
 
     stage('Release') {
       when {
-        expression { env.BRANCH_NAME == 'main' }
+        expression { 
+          def branch = env.GIT_BRANCH ?: env.BRANCH_NAME
+          echo "🔎 Detected branch for release: ${branch}"
+          return branch?.contains("main")
+        }
       }
       steps {
-        echo "🚀 Releasing build artifact — running on main branch (${BRANCH_NAME})."
+        echo "🚀 Releasing build artifact — running on main branch."
       }
     }
   }
@@ -55,7 +60,7 @@ pipeline {
       echo "✅ Pipeline succeeded — Build #$BUILD_NUMBER"
     }
     failure {
-      echo "❌ Pipeline failed — check logs."
+      echo "❌ Pipeline failed — Check console log."
     }
   }
 }
