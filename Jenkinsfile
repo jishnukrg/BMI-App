@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   environment {
-    // Prefer Jenkins' built-in env vars for multibranch pipelines
     BRANCH_NAME = "${env.GIT_BRANCH ?: env.BRANCH_NAME ?: 'unknown'}"
   }
 
@@ -32,26 +31,26 @@ pipeline {
       }
     }
 
-    // 🔹 MODULE 5 ENHANCEMENT #1 – Advanced Tests (from walkthrough)
+    // -----------------------------
+    // MODULE 5 ENHANCEMENT #1
+    // Advanced Tests (Walkthrough)
+    // -----------------------------
     stage('Advanced Tests') {
       steps {
         echo '🔍 Running enhanced tests...'
         sh '''
-          # 1. Check if build directory exists
           if [ ! -d "build" ]; then
             echo "❌ ERROR: Build folder missing!"
             exit 1
           fi
 
-          # 2. Check compiled class exists
           if [ ! -f "build/BMIApp.class" ]; then
-            echo "❌ ERROR: BMIApp.class not found!"
+            echo "❌ ERROR: BMIApp.class missing!"
             exit 1
           fi
 
-          # 3. Lightweight lint-style check
           if grep -q "System.out.println" BMIApp.java; then
-            echo "ℹ️ Note: Debug print statements found in BMIApp.java."
+            echo "ℹ️ Debug print statements found."
           fi
 
           echo "✅ All enhanced tests passed!"
@@ -83,38 +82,42 @@ pipeline {
     }
   }
 
-  // 🔹 MODULE 5 ENHANCEMENT #2 – Email notifications (book/online enhancement)
+  // -----------------------------
+  // MODULE 5 ENHANCEMENT #2
+  // Email Notification (Book/Online)
+  // -----------------------------
   post {
     success {
       echo "✅ Pipeline succeeded — Build #$BUILD_NUMBER"
 
       emailext(
-        subject: "✅ BMI Pipeline Success – Build #${BUILD_NUMBER}",
+        subject: "BMI Pipeline Success – Build #${BUILD_NUMBER}",
         body: """
-Hello,
+Hello Jishnu,
 
-The BMIAppPipeline has completed SUCCESSFULLY.
+Your BMI CI/CD Pipeline completed SUCCESSFULLY.
 Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
-Build number: ${BUILD_NUMBER}
+Build Number: ${BUILD_NUMBER}
 
 – Jenkins
 """,
         to: "jishnu944@gmail.com"
       )
     }
+
     failure {
       echo "❌ Pipeline failed — Check console log."
 
       emailext(
-        subject: "❌ BMI Pipeline FAILED – Build #${BUILD_NUMBER}",
+        subject: "BMI Pipeline FAILED – Build #${BUILD_NUMBER}",
         body: """
-Hello,
+Hello Jishnu,
 
-The BMIAppPipeline has FAILED.
+Your BMI CI/CD Pipeline has FAILED.
 Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
-Build number: ${BUILD_NUMBER}
+Build Number: ${BUILD_NUMBER}
 
-Please check the Jenkins console log.
+Please review Jenkins logs.
 
 – Jenkins
 """,
