@@ -103,7 +103,7 @@ Build Number: ${BUILD_NUMBER}
 
 – Jenkins
 """,
-        to: "your_email_here@example.com"
+        to: "jishnu944@gmail.com"
       )
     }
 
@@ -123,7 +123,7 @@ Please review Jenkins logs.
 
 – Jenkins
 """,
-        to: "your_email_here@example.com"
+        to: "jishnu944@gmail.com"
       )
     }
   }
