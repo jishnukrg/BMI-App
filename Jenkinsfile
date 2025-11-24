@@ -7,6 +7,7 @@ pipeline {
   }
 
   stages {
+
     stage('Checkout') {
       steps {
         checkout scm
@@ -26,8 +27,37 @@ pipeline {
 
     stage('Test') {
       steps {
-        echo '🧪 Running verification...'
+        echo '🧪 Running basic verification...'
         sh 'echo ✅ BMIApp compiled successfully!'
+      }
+    }
+
+    /* ----------------------------------------------------
+       MODULE 5 ENHANCEMENT #1 — ADVANCED TESTS (from walkthrough)
+       ---------------------------------------------------- */
+    stage('Advanced Tests') {
+      steps {
+        echo '🔍 Running enhanced tests...'
+        sh '''
+          # 1. Check if build directory exists
+          if [ ! -d "build" ]; then
+            echo "❌ ERROR: Build folder missing!"
+            exit 1
+          fi
+
+          # 2. Check compiled class exists
+          if [ ! -f "build/BMIApp.class" ]; then
+            echo "❌ ERROR: BMIApp.class not found!"
+            exit 1
+          fi
+
+          # 3. Lightweight lint check
+          if grep -q "System.out.println" BMIApp.java; then
+            echo "ℹ️ Note: Debug print statements found."
+          fi
+
+          echo "✅ All enhanced tests passed!"
+        '''
       }
     }
 
@@ -55,12 +85,46 @@ pipeline {
     }
   }
 
+  /* ----------------------------------------------------
+     MODULE 5 ENHANCEMENT #2 — EMAIL NOTIFICATIONS
+     ---------------------------------------------------- */
   post {
     success {
       echo "✅ Pipeline succeeded — Build #$BUILD_NUMBER"
+
+      emailext(
+        subject: "BMI Pipeline Success – Build #${BUILD_NUMBER}",
+        body: """
+Hello Jishnu,
+
+Your BMI CI/CD Pipeline completed SUCCESSFULLY.
+Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
+Build Number: ${BUILD_NUMBER}
+
+– Jenkins
+""",
+        to: "your_email_here@example.com"
+      )
     }
+
     failure {
       echo "❌ Pipeline failed — Check console log."
+
+      emailext(
+        subject: "BMI Pipeline FAILED – Build #${BUILD_NUMBER}",
+        body: """
+Hello Jishnu,
+
+Your BMI CI/CD Pipeline has FAILED.
+Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
+Build Number: ${BUILD_NUMBER}
+
+Please review Jenkins logs.
+
+– Jenkins
+""",
+        to: "your_email_here@example.com"
+      )
     }
   }
 }
