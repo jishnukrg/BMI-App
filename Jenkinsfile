@@ -32,9 +32,7 @@ pipeline {
       }
     }
 
-    /* ----------------------------------------------------
-       MODULE 5 ENHANCEMENT #1 — ADVANCED TESTS (from walkthrough)
-       ---------------------------------------------------- */
+    // 🔹 MODULE 5 ENHANCEMENT #1 – Advanced Tests (from walkthrough)
     stage('Advanced Tests') {
       steps {
         echo '🔍 Running enhanced tests...'
@@ -51,9 +49,9 @@ pipeline {
             exit 1
           fi
 
-          # 3. Lightweight lint check
+          # 3. Lightweight lint-style check
           if grep -q "System.out.println" BMIApp.java; then
-            echo "ℹ️ Note: Debug print statements found."
+            echo "ℹ️ Note: Debug print statements found in BMIApp.java."
           fi
 
           echo "✅ All enhanced tests passed!"
@@ -73,7 +71,7 @@ pipeline {
 
     stage('Release') {
       when {
-        expression { 
+        expression {
           def branch = env.GIT_BRANCH ?: env.BRANCH_NAME
           echo "🔎 Detected branch for release: ${branch}"
           return branch?.contains("main")
@@ -85,41 +83,38 @@ pipeline {
     }
   }
 
-  /* ----------------------------------------------------
-     MODULE 5 ENHANCEMENT #2 — EMAIL NOTIFICATIONS
-     ---------------------------------------------------- */
+  // 🔹 MODULE 5 ENHANCEMENT #2 – Email notifications (book/online enhancement)
   post {
     success {
       echo "✅ Pipeline succeeded — Build #$BUILD_NUMBER"
 
       emailext(
-        subject: "BMI Pipeline Success – Build #${BUILD_NUMBER}",
+        subject: "✅ BMI Pipeline Success – Build #${BUILD_NUMBER}",
         body: """
-Hello Jishnu,
+Hello,
 
-Your BMI CI/CD Pipeline completed SUCCESSFULLY.
+The BMIAppPipeline has completed SUCCESSFULLY.
 Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
-Build Number: ${BUILD_NUMBER}
+Build number: ${BUILD_NUMBER}
 
 – Jenkins
 """,
         to: "jishnu944@gmail.com"
       )
     }
-
     failure {
       echo "❌ Pipeline failed — Check console log."
 
       emailext(
-        subject: "BMI Pipeline FAILED – Build #${BUILD_NUMBER}",
+        subject: "❌ BMI Pipeline FAILED – Build #${BUILD_NUMBER}",
         body: """
-Hello Jishnu,
+Hello,
 
-Your BMI CI/CD Pipeline has FAILED.
+The BMIAppPipeline has FAILED.
 Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
-Build Number: ${BUILD_NUMBER}
+Build number: ${BUILD_NUMBER}
 
-Please review Jenkins logs.
+Please check the Jenkins console log.
 
 – Jenkins
 """,
