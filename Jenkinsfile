@@ -1,12 +1,23 @@
 pipeline {
   agent any
 
+  // Module 6 monitoring options
+  options {
+    // Keep only the last 10 builds / 7 days to reduce storage and log clutter
+    buildDiscarder(logRotator(numToKeepStr: '10', daysToKeepStr: '7'))
+
+    // Fail the build if it runs longer than 5 minutes
+    timeout(time: 5, unit: 'MINUTES')
+
+    // Add timestamps to every log line for easier monitoring
+    timestamps()
+  }
+
   environment {
     BRANCH_NAME = "${env.GIT_BRANCH ?: env.BRANCH_NAME ?: 'unknown'}"
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         checkout scm
@@ -31,26 +42,19 @@ pipeline {
       }
     }
 
-    // -----------------------------
-    // MODULE 5 ENHANCEMENT #1
-    // Advanced Tests (Walkthrough)
-    // -----------------------------
+    // Enhancement 1 from Module 5 – still here
     stage('Advanced Tests') {
       steps {
         echo '🔍 Running enhanced tests...'
         sh '''
           if [ ! -d "build" ]; then
-            echo "❌ ERROR: Build folder missing!"
+            echo "❌ Build folder missing!"
             exit 1
           fi
 
           if [ ! -f "build/BMIApp.class" ]; then
-            echo "❌ ERROR: BMIApp.class missing!"
+            echo "❌ BMIApp.class not found!"
             exit 1
-          fi
-
-          if grep -q "System.out.println" BMIApp.java; then
-            echo "ℹ️ Debug print statements found."
           fi
 
           echo "✅ All enhanced tests passed!"
@@ -68,12 +72,27 @@ pipeline {
       }
     }
 
+    // NEW for Module 6 – Health & Monitoring stage
+    stage('Health & Monitoring') {
+      steps {
+        echo '📊 Collecting basic health information...'
+        sh '''
+          echo "Workspace disk usage:"
+          du -sh . || echo "du command not available"
+
+          echo ""
+          echo "System uptime:"
+          uptime || echo "uptime command not available"
+        '''
+      }
+    }
+
     stage('Release') {
       when {
         expression {
           def branch = env.GIT_BRANCH ?: env.BRANCH_NAME
           echo "🔎 Detected branch for release: ${branch}"
-          return branch?.contains("main")
+          return branch?.contains('main')
         }
       }
       steps {
@@ -82,46 +101,22 @@ pipeline {
     }
   }
 
-  // -----------------------------
-  // MODULE 5 ENHANCEMENT #2
-  // Email Notification (Book/Online)
-  // -----------------------------
   post {
     success {
       echo "✅ Pipeline succeeded — Build #$BUILD_NUMBER"
-
       emailext(
-        subject: "BMI Pipeline Success – Build #${BUILD_NUMBER}",
-        body: """
-Hello Jishnu,
-
-Your BMI CI/CD Pipeline completed SUCCESSFULLY.
-Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
-Build Number: ${BUILD_NUMBER}
-
-– Jenkins
-""",
-        to: "jishnu944@gmail.com"
+        subject: "BMI Pipeline SUCCESS – Build #${BUILD_NUMBER}",
+        to: "jishnu944@gmail.com",
+        body: "The BMIApp pipeline finished successfully on branch ${BRANCH_NAME}.\\nBuild URL: ${BUILD_URL}"
       )
     }
 
     failure {
-      echo "❌ Pipeline failed — Check console log."
-
+      echo "❌ Pipeline failed — Build #$BUILD_NUMBER"
       emailext(
         subject: "BMI Pipeline FAILED – Build #${BUILD_NUMBER}",
-        body: """
-Hello Jishnu,
-
-Your BMI CI/CD Pipeline has FAILED.
-Branch: ${env.GIT_BRANCH ?: env.BRANCH_NAME}
-Build Number: ${BUILD_NUMBER}
-
-Please review Jenkins logs.
-
-– Jenkins
-""",
-        to: "jishnu944@gmail.com"
+        to: "jishnu944@gmail.com",
+        body: "The BMIApp pipeline FAILED on branch ${BRANCH_NAME}.\\nPlease check logs: ${BUILD_URL}"
       )
     }
   }
